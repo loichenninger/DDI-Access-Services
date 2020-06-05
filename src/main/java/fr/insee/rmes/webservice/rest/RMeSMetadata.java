@@ -29,6 +29,7 @@ import fr.insee.rmes.metadata.service.fragmentInstance.FragmentInstanceService;
 import fr.insee.rmes.metadata.service.groups.GroupsService;
 import fr.insee.rmes.metadata.service.questionnaire.QuestionnaireService;
 import fr.insee.rmes.metadata.service.variableBook.VariableBookService;
+import fr.insee.rmes.search.model.DDIItemType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -121,6 +122,23 @@ public class RMeSMetadata {
 			throws Exception {
 		try {
 			List<ColecticaItem> children = metadataServiceItem.getItems(query);
+			return Response.ok().entity(children).build();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+	
+	@GET
+	@Path("colectica-items/{itemType}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all referenced items of a certain type", notes = "Retrieve a list of ColecticaItem of the type defined", response = ColecticaItem.class, responseContainer = "List")
+	public Response getItemsByType(@PathParam (value = "itemType") String type)
+			throws Exception {
+		try {
+			DDIItemType itemType = DDIItemType.valueOf(type.toUpperCase());			
+			List<ColecticaItem> children = metadataServiceItem.getItemsByType(itemType);
 			return Response.ok().entity(children).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

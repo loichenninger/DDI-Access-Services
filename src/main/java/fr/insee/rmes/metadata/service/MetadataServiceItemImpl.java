@@ -16,7 +16,10 @@ import org.w3c.dom.NodeList;
 import fr.insee.rmes.metadata.model.ColecticaItem;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRef;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRefList;
+import fr.insee.rmes.metadata.model.ColecticaItemRef;
 import fr.insee.rmes.metadata.model.ColecticaItemRefList;
+import fr.insee.rmes.metadata.model.ColecticaSearchBody;
+import fr.insee.rmes.metadata.model.ColecticaSearchResponse;
 import fr.insee.rmes.metadata.repository.GroupRepository;
 import fr.insee.rmes.metadata.repository.MetadataRepository;
 import fr.insee.rmes.metadata.utils.XpathProcessor;
@@ -367,6 +370,25 @@ public class MetadataServiceItemImpl implements MetadataServiceItem {
 		}
 		return metadataRepository.postUpdateItems(refs);
 
+	}
+
+	@Override
+	public List<ColecticaItem> getItemsByType(DDIItemType type) throws Exception {
+		ColecticaSearchBody body = new ColecticaSearchBody();
+		List<String> DDItypes = new ArrayList<>();
+		DDItypes.add(type.getUUID());
+		List<String> listLanguages = new ArrayList<>();
+		listLanguages.add("fr-FR");
+		body.setCultures(listLanguages);
+		body.setLanguageSortOrder(listLanguages);
+		body.setItemTypes(DDItypes);
+		ColecticaSearchResponse response = metadataRepository.searchItems(body);
+		List<ColecticaItemRef> ids = new ArrayList<>();
+		response.getResults().stream().forEach((result) -> {
+			ColecticaItemRef item = new ColecticaItemRef( result.getIdentifier(), result.getVersion(), result.getAgencyId());
+			ids.add(item);
+		});
+		return metadataRepository.getItems(new ColecticaItemRefList(ids));
 	}
 
 }

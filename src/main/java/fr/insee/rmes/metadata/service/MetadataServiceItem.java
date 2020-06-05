@@ -28,6 +28,8 @@ public interface MetadataServiceItem {
 
 	List<ColecticaItem> getItems(ColecticaItemRefList refs) throws Exception;
 
+	List<ColecticaItem> getItemsByType(DDIItemType type) throws Exception;
+	
 	ResponseItem getDDIRoot(String id) throws Exception;
 
 	List<ResponseItem> getDDICodeListSchemeFromResourcePackage(String id) throws Exception;
