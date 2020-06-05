@@ -7,6 +7,8 @@ import fr.insee.rmes.metadata.model.ColecticaItem;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRef;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRefList;
 import fr.insee.rmes.metadata.model.ColecticaItemRefList;
+import fr.insee.rmes.metadata.model.ColecticaSearchBody;
+import fr.insee.rmes.metadata.model.ColecticaSearchResponse;
 import fr.insee.rmes.metadata.model.Relationship;
 import fr.insee.rmes.metadata.model.ObjectColecticaPost;
 import fr.insee.rmes.metadata.model.Unit;
@@ -32,4 +34,6 @@ public interface MetadataRepository {
 	List<Unit> getUnits() throws Exception;
 
 	Relationship[] getRelationshipChildren(ObjectColecticaPost relationshipPost);
+	
+	ColecticaSearchResponse searchItems(ColecticaSearchBody body);
 }
