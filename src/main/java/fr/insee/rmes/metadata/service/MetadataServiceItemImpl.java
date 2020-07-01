@@ -1,6 +1,7 @@
 package fr.insee.rmes.metadata.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import fr.insee.rmes.metadata.model.ColecticaFacet;
 import fr.insee.rmes.metadata.model.ColecticaItem;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRef;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRefList;
@@ -20,6 +22,9 @@ import fr.insee.rmes.metadata.model.ColecticaItemRef;
 import fr.insee.rmes.metadata.model.ColecticaItemRefList;
 import fr.insee.rmes.metadata.model.ColecticaSearchBody;
 import fr.insee.rmes.metadata.model.ColecticaSearchResponse;
+import fr.insee.rmes.metadata.model.ColecticaSearchSetBody;
+import fr.insee.rmes.metadata.model.Relationship;
+import fr.insee.rmes.metadata.model.RelationshipOut;
 import fr.insee.rmes.metadata.repository.GroupRepository;
 import fr.insee.rmes.metadata.repository.MetadataRepository;
 import fr.insee.rmes.metadata.utils.XpathProcessor;
@@ -390,5 +395,43 @@ public class MetadataServiceItemImpl implements MetadataServiceItem {
 		});
 		return metadataRepository.getItems(new ColecticaItemRefList(ids));
 	}
+	
+	@Override
+	public List<RelationshipOut> getTopLevelRefs (String id) throws Exception {
+		ColecticaItem item = metadataRepository.findById(id);
+		ColecticaItemRef itemRef = new ColecticaItemRef(item.getIdentifier(), Integer.parseInt(item.getVersion()), item.getAgencyId());
+		List<String> typeList = new ArrayList<>();
+		//Searching parents which types are Group, SubGroup, DataCollection and StudyUnit
+		typeList.add(DDIItemType.GROUP.getUUID());
+		typeList.add(DDIItemType.SUB_GROUP.getUUID());
+		typeList.add(DDIItemType.STUDY_UNIT.getUUID());
+		typeList.add(DDIItemType.DATA_COLLECTION.getUUID());
+		ColecticaFacet facet = new ColecticaFacet(typeList, true);
+		ColecticaSearchSetBody body = new ColecticaSearchSetBody(itemRef, facet);
+		Relationship[] results = metadataRepository.searchSets(body);
+		List<RelationshipOut> resultsFinal = new ArrayList<>(); 
+		//Keeping only the last version of an item
+		for (int i=0; i<results.length; i++) {
+			boolean lastVersion = true;
+			for (int j=0; j<results.length; j++) {
+				if (results[i].getIdentifierTriple().getIdentifier().equals(results[i].getIdentifierTriple().getIdentifier())
+					&& results[i].getIdentifierTriple().getVersion()<results[j].getIdentifierTriple().getVersion()) {
+					lastVersion = false;
+				}
+			};
+			if (lastVersion) {
+				resultsFinal.add(mappingRelationship(results[i]));
+			}
+		}
+		return resultsFinal;
+	}
+	
+	public RelationshipOut mappingRelationship (Relationship rel) {
+		ColecticaItemRef refOut = new ColecticaItemRef(rel.getIdentifierTriple().getIdentifier(), 
+				rel.getIdentifierTriple().getVersion(), rel.getIdentifierTriple().getAgencyId());
+		return new RelationshipOut(refOut, rel.getTypeItem());
+		
+	}
+	
 
 }

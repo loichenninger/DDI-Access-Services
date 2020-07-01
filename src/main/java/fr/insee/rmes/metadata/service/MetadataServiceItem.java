@@ -7,6 +7,8 @@ import fr.insee.rmes.metadata.model.ColecticaItem;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRef;
 import fr.insee.rmes.metadata.model.ColecticaItemPostRefList;
 import fr.insee.rmes.metadata.model.ColecticaItemRefList;
+import fr.insee.rmes.metadata.model.Relationship;
+import fr.insee.rmes.metadata.model.RelationshipOut;
 import fr.insee.rmes.search.model.DDIItemType;
 import fr.insee.rmes.search.model.ResponseItem;
 
@@ -23,6 +25,8 @@ public interface MetadataServiceItem {
 	ColecticaItem getQuestion(String id) throws Exception;
 
 	ColecticaItemRefList getChildrenRef(String id) throws Exception;
+	
+	List<RelationshipOut> getTopLevelRefs (String id) throws Exception;
 
 	Map<String, ColecticaItem> getMapItems(ColecticaItemRefList refs) throws Exception;
 

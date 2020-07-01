@@ -1,6 +1,7 @@
 package fr.insee.rmes.metadata.service.fragmentInstance;
 
 import fr.insee.rmes.search.model.DDIItemType;
+import fr.insee.rmes.utils.ddi.DDIDocumentBuilder;
 
 public interface FragmentInstanceService {
 	
@@ -12,4 +13,7 @@ public interface FragmentInstanceService {
 	 */
 	String getFragmentInstance(String idTopLevel, DDIItemType itemType) throws Exception;
 
+	DDIDocumentBuilder buildFragmentInstanceEnvelope(String idTopLevel, DDIItemType[] itemTypes) throws Exception;
+
+	String getFragmentInstances(String idTopLevel, DDIItemType[] itemTypes) throws Exception;
 }

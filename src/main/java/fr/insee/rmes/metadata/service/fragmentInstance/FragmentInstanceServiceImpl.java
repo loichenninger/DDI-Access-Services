@@ -17,9 +17,11 @@ import org.xml.sax.InputSource;
 import fr.insee.rmes.metadata.model.ColecticaItem;
 import fr.insee.rmes.metadata.model.ColecticaItemRefList;
 import fr.insee.rmes.metadata.service.MetadataServiceItem;
+import fr.insee.rmes.metadata.utils.DocumentBuilderUtils;
 import fr.insee.rmes.search.model.DDIItemType;
 import fr.insee.rmes.utils.ddi.DDIDocumentBuilder;
 import fr.insee.rmes.utils.ddi.Envelope;
+import fr.insee.rmes.webservice.rest.RMeSException;
 
 @Service
 public class FragmentInstanceServiceImpl implements FragmentInstanceService {
@@ -71,6 +73,21 @@ public class FragmentInstanceServiceImpl implements FragmentInstanceService {
 		InputSource ddiSource = new InputSource(new StringReader(fragment));
 		return builder.parse(ddiSource);
 	}
+	
+	@Override
+	public String getFragmentInstances(String idTopLevel, DDIItemType[] itemTypes) throws Exception {
+		
+		DDIDocumentBuilder docBuilder = buildFragmentInstanceEnvelope(idTopLevel, itemTypes);
+
+		// Add the root Instance and all of its children
+		ColecticaItemRefList refs = metadataServiceItem.getChildrenRef(idTopLevel);
+		List<ColecticaItem> items = metadataServiceItem.getItems(refs);
+		for (ColecticaItem itemUnit : items) {
+			Node itemNode = DocumentBuilderUtils.getNode(itemUnit.item, docBuilder.getDocument());
+			docBuilder.appendChild(itemNode);
+		}
+		return docBuilder.toString();
+	}
 
 	private Node getNode(String fragment, Document doc) throws Exception {
 		Element node = getDocument(fragment).getDocumentElement();
@@ -78,6 +95,48 @@ public class FragmentInstanceServiceImpl implements FragmentInstanceService {
 		// Transfer ownership of the new node into the destination document
 		doc.adoptNode(newNode);
 		return newNode;
+	}
+	
+	@Override
+	public DDIDocumentBuilder buildFragmentInstanceEnvelope(String idTopLevel, DDIItemType[] itemTypes) throws Exception {
+		// Step 1 : get the topLevelItem
+		ColecticaItem item = null;
+		ColecticaItem itemTemp = null;
+		String itemTypeName = "";
+		if (itemTypes == null || itemTypes.length == 0) {
+			itemTemp = metadataServiceItem.getItem(idTopLevel);
+			itemTypeName = itemTemp.getType().getName();
+			item = itemTemp;
+		} else {
+			for (DDIItemType ddiItemType : itemTypes) {
+				try {
+					if (item == null) {
+						item = metadataServiceItem.getItemByType(idTopLevel, ddiItemType);
+						itemTypeName = item.getType().getName();
+					}
+				} catch (RMeSException rmesE) {
+					throw rmesE;
+				} catch (Exception e) {
+					e.getMessage();
+				}
+			}
+
+		}
+
+		// Step 2 : create a DDIDocumentBuilder
+		DDIDocumentBuilder docBuilder = new DDIDocumentBuilder(true, Envelope.FRAGMENT_INSTANCE);
+
+		// Step 3 : replace attributes for the TopLevelReference
+		replaceValueEnvelope(docBuilder, "r:Agency", item.agencyId);
+		replaceValueEnvelope(docBuilder, "r:ID", item.identifier);
+		replaceValueEnvelope(docBuilder, "r:Version", item.version);
+		if (itemTypes == null) {
+			replaceValueEnvelope(docBuilder, "r:TypeOfObject", item.getType().getName());
+		} else {
+			replaceValueEnvelope(docBuilder, "r:TypeOfObject", itemTypeName);
+		}
+		
+		return docBuilder;
 	}
 
 	/**

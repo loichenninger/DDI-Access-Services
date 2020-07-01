@@ -18,6 +18,7 @@ import fr.insee.rmes.metadata.model.ColecticaItemPostRefList;
 import fr.insee.rmes.metadata.model.ColecticaItemRefList;
 import fr.insee.rmes.metadata.model.ColecticaSearchBody;
 import fr.insee.rmes.metadata.model.ColecticaSearchResponse;
+import fr.insee.rmes.metadata.model.ColecticaSearchSetBody;
 import fr.insee.rmes.metadata.model.Relationship;
 import fr.insee.rmes.metadata.model.ObjectColecticaPost;
 import fr.insee.rmes.metadata.model.Unit;
@@ -126,5 +127,10 @@ public class MetadataRepositoryImpl implements MetadataRepository {
 	@Override
 	public ColecticaSearchResponse searchItems(ColecticaSearchBody body) {
 		return metadataClient.searchItems(body);
+	}
+
+	@Override
+	public Relationship[] searchSets(ColecticaSearchSetBody setBody) {
+		return metadataClient.searchSets(setBody);
 	}
 }
