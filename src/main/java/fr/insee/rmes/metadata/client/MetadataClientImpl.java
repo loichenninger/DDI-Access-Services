@@ -25,6 +25,7 @@ import fr.insee.rmes.metadata.model.ColecticaItemRef;
 import fr.insee.rmes.metadata.model.ColecticaItemRefList;
 import fr.insee.rmes.metadata.model.ColecticaSearchBody;
 import fr.insee.rmes.metadata.model.ColecticaSearchResponse;
+import fr.insee.rmes.metadata.model.ColecticaSearchSetBody;
 import fr.insee.rmes.metadata.model.Relationship;
 import fr.insee.rmes.metadata.model.ObjectColecticaPost;
 import fr.insee.rmes.metadata.model.Unit;
@@ -59,12 +60,12 @@ public class MetadataClientImpl implements MetadataClient {
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add(CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
 		headers.add(AUTHORIZATION, AUTHORIZATION_TYPE + token);
-		HttpEntity<ColecticaItemRefList> request = new HttpEntity<>(headers);
+		HttpEntity<ColecticaItem> request = new HttpEntity<>(headers);
 		return restTemplate.exchange(url, HttpMethod.GET, request, ColecticaItem.class).getBody();
 	}
 
 	public List<ColecticaItem> getItems(ColecticaItemRefList query) throws Exception {
-		String url = String.format("%s/api/v1/item/_getList?api_key=%s", serviceUrl, apiKey);
+		String url = String.format("%s/api/v1/item/_getList", serviceUrl);
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
 		headers.add("Content-type", ContentType.APPLICATION_JSON.getMimeType());
 		headers.add(AUTHORIZATION, AUTHORIZATION_TYPE + token);
@@ -76,9 +77,13 @@ public class MetadataClientImpl implements MetadataClient {
 	}
 
 	public ColecticaItemRefList getChildrenRef(String id) throws Exception {
-		String url = String.format("%s/api/v1/set/%s/%s?api_key=%s", serviceUrl, agency, id, apiKey);
+		String url = String.format("%s/api/v1/set/%s/%s", serviceUrl, agency, id);
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+		headers.add(CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
+		headers.add(AUTHORIZATION, AUTHORIZATION_TYPE + token);
+		HttpEntity<String> request = new HttpEntity<>(headers);
 		ResponseEntity<ColecticaItemRef.Unformatted[]> response;
-		response = restTemplate.exchange(url, HttpMethod.GET, null, ColecticaItemRef.Unformatted[].class);
+		response = restTemplate.exchange(url, HttpMethod.GET, request, ColecticaItemRef.Unformatted[].class);
 		List<ColecticaItemRef> refs = Arrays.asList(response.getBody()).stream()
 				.map(unformatted -> unformatted.format()).collect(Collectors.toList());
 		logger.info("Get ChildrenRef for id : " + id);
@@ -175,6 +180,19 @@ public class MetadataClientImpl implements MetadataClient {
 		ResponseEntity<ColecticaSearchResponse> response = restTemplate.exchange(url, HttpMethod.POST, request,
 				ColecticaSearchResponse.class);
 		logger.info("GET Items with query : " + body.toString());
+		return response.getBody();
+	}
+
+	@Override
+	public Relationship[] searchSets(ColecticaSearchSetBody setBody) {
+		String url = String.format("%s/api/v1/_query/set", serviceUrl);
+		RestTemplate restTemplate = new RestTemplate();
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+		headers.add("Content-type", ContentType.APPLICATION_JSON.getMimeType());
+		headers.add("Authorization", "Bearer " + token);
+		HttpEntity<ColecticaSearchSetBody> request = new HttpEntity<>(setBody, headers);
+		ResponseEntity<Relationship[]> response = restTemplate.exchange(url, HttpMethod.POST, request,
+				Relationship[].class);
 		return response.getBody();
 	}
 	
