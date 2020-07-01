@@ -2,6 +2,7 @@ package fr.insee.rmes.metadata.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,7 @@ public class Relationship {
 	 * [ { "Item1": { "Item1": "string", "Item2": 0, "Item3": "string" },
 	 * "Item2": "string" } ]
 	 */
-
+	
 	@JsonProperty("Item1")
 	private identifierTriple identifierTriple;
 
