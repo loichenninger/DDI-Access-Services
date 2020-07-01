@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Repository;
 
 import fr.insee.rmes.config.DDIItemFakeImplCondition;
+import fr.insee.rmes.search.model.ColecticaItemSolr;
 import fr.insee.rmes.search.model.DDIItem;
 import fr.insee.rmes.search.model.DDIQuery;
 import fr.insee.rmes.search.model.DataCollectionContext;
@@ -652,6 +653,12 @@ public class DDIItemFakeImpl implements DDIItemRepository {
 		groups.add(ddiItem2);
 		groups.add(ddiItem1);
 		return groups;
+	}
+
+	@Override
+	public List<ColecticaItemSolr> getItemsByLabel(String label) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

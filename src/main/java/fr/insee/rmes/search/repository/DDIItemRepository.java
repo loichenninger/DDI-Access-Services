@@ -5,6 +5,7 @@ import java.util.List;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
 
+import fr.insee.rmes.search.model.ColecticaItemSolr;
 import fr.insee.rmes.search.model.DDIItem;
 import fr.insee.rmes.search.model.DDIQuery;
 import fr.insee.rmes.search.model.DataCollectionContext;
@@ -37,5 +38,7 @@ public interface DDIItemRepository {
 	DDIItem getItemById(String id) throws Exception;
 
 	List<DDIItem> getGroups() throws Exception;
+	
+	List<ColecticaItemSolr> getItemsByLabel(String label);
 
 }

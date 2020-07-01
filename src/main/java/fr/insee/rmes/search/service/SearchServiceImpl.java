@@ -7,6 +7,7 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import fr.insee.rmes.search.model.ColecticaItemSolr;
 import fr.insee.rmes.search.model.DDIItem;
 import fr.insee.rmes.search.model.DDIQuery;
 import fr.insee.rmes.search.model.DataCollectionContext;
@@ -81,6 +82,11 @@ public class SearchServiceImpl implements SearchService {
 	@Override
 	public List<DDIItem> getGroups() throws Exception {
 		return ddiItemRepository.getGroups();
+	}
+
+	@Override
+	public List<ColecticaItemSolr> getItemsByLabel(String label) {
+		return ddiItemRepository.getItemsByLabel(label);
 	}
 
 }

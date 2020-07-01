@@ -22,6 +22,7 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import fr.insee.rmes.search.model.ColecticaItemSolr;
 import fr.insee.rmes.search.model.DDIItem;
 import fr.insee.rmes.search.model.DDIQuery;
 import fr.insee.rmes.search.model.DataCollectionContext;
@@ -174,6 +175,19 @@ public class RMeSSearch {
 	public List<DDIItem> getDataCollections(@PathParam(value = "id") String id) throws Exception {
 		try {
 			return searchService.getDataCollections(id);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+	
+	@GET
+	@Path("items/{label}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all items for a given label", notes = "Retrieve all items with a matching label")
+	public List<ColecticaItemSolr> getItemsFromLabel(@PathParam(value = "label") String label) throws Exception {
+		try {
+			return searchService.getItemsByLabel(label);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;
