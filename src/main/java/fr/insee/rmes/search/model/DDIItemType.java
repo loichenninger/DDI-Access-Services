@@ -49,6 +49,16 @@ public enum DDIItemType {
 		this.UUID = UUID;
 	}
 	
+	public static DDIItemType searchByUUID(String uuid) {
+		DDIItemType item = null;
+		for (DDIItemType ddiItemType : values()) {
+			if (ddiItemType.getUUID().equals(uuid)) {
+				item = ddiItemType;
+			}
+		}
+		return item;
+	}
+	
 	public String toString(){
 		return this.name;
 	}
