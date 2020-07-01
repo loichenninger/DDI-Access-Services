@@ -36,7 +36,7 @@ public class DDIItemRepositoryDBImplCondition implements Condition {
 		Properties props = new Properties();
 		String env = System.getProperty("fr.insee.rmes.env");
 		if (null == env) {
-			env = "dv";
+			env = "dev";
 		}
 		String propsPath = String.format("env/%s/ddi-access-services.properties", env);
 		props.load(getClass().getClassLoader().getResourceAsStream(propsPath));
