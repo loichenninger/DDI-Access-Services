@@ -100,6 +100,7 @@ public class RMeSMetadata {
 		}
 	}
 	
+	/*Ajout*/
 	@GET
 	@Path("colectica-item/{id}/toplevel-refs/")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -147,15 +148,16 @@ public class RMeSMetadata {
 		}
 	}
 	
+	/*Ajout*/
 	@GET
 	@Path("colectica-items/{itemType}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get all referenced items of a certain type", notes = "Retrieve a list of ColecticaItem of the type defined", response = ColecticaItem.class, responseContainer = "List")
-	public Response getItemsByType(@PathParam (value = "itemType") String type)
+	public Response getItemsByType(@PathParam (value = "itemType") DDIItemType itemType)
 			throws Exception {
 		try {
-			DDIItemType itemType = DDIItemType.valueOf(type.toUpperCase());			
+			//DDIItemType itemType = DDIItemType.valueOf(type.toUpperCase());			
 			List<ColecticaItem> children = metadataServiceItem.getItemsByType(itemType);
 			return Response.ok().entity(children).build();
 		} catch (Exception e) {
