@@ -6,6 +6,7 @@ public class ColecticaItemSolr {
 
 	private String id = "";
 	private String label = "";
+	private String description ="";
 	private String type;
 	private Integer version;
 	
@@ -46,6 +47,14 @@ public class ColecticaItemSolr {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public Integer getVersion() {
@@ -90,11 +99,9 @@ public class ColecticaItemSolr {
 
 	@Override
 	public String toString() {
-		return "ColecticaItemSolr [id=" + id + ", label=" + label + ", type=" + type + ", version=" + version
-				+ ", modalities=" + modalities + ", subGroups=" + subGroups + ", dataCollections=" + dataCollections
-				+ ", studyUnits=" + studyUnits + "]";
+		return "ColecticaItemSolr [id=" + id + ", label=" + label + ", description=" + description + ", type=" + type
+				+ ", version=" + version + ", modalities=" + modalities + ", subGroups=" + subGroups
+				+ ", dataCollections=" + dataCollections + ", studyUnits=" + studyUnits + "]";
 	}
 
-	
-	
 }
