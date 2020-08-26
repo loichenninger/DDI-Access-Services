@@ -17,6 +17,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.CommonParams;
+import org.apache.solr.common.params.DisMaxParams;
+import org.apache.solr.common.params.HighlightParams;
 import org.apache.solr.common.params.MapSolrParams;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -275,16 +277,41 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 
 	@Override
 	public List<ColecticaItemSolr> getItemsByLabel(String label) {
-		String queryString = String.format("label:*%s*", label);
-
-		QueryResponse response = querySolr(queryString);
-
+		SolrClient solrClient = new HttpSolrClient.Builder(String.format("https://%s/solr", solrHost)).build();
+		SolrQuery query = new SolrQuery();
+		
+		//Request
+		query.set("defType", "edismax");
+		query.set(CommonParams.Q, label);
+		query.set(DisMaxParams.QF, "label description");
+		query.set(DisMaxParams.BQ, "reusable:true");
+		query.set(DisMaxParams.PF, "label description");
+		query.set(CommonParams.SORT, "score desc");
+		
+		//Highlighting
+		query.set(HighlightParams.HIGHLIGHT,true);
+		query.set(HighlightParams.METHOD, "unified");
+		query.set(HighlightParams.FIELDS, "label");
+		query.set(HighlightParams.BS_TYPE, "WHOLE");
+		
+		QueryResponse response = null;
+		try {
+			response = solrClient.query("testcore", query);
+		} catch (SolrServerException | IOException e1) {
+			e1.printStackTrace();
+		}
+		
 		List<ColecticaItemSolr> itemsResult = new ArrayList<>();
 		SolrDocumentList results = response.getResults();
 		for (SolrDocument result : results) {
 			String type = getString(result, "type");
 			String id = (String) result.getFieldValue("id");
-			String labelResult = getString(result, "label");
+			String labelResult = "";
+			if (response.getHighlighting().get(id).get("label").size()>0) {
+				labelResult = response.getHighlighting().get(id).get("label").get(0);
+			} else {
+				labelResult = getString(result, "label");
+			}
 			List<Long> versions = (List<Long>) result.getFieldValue("version");
 			List<String> modalities = getStrings(result,"modalities");
 			List<String> subGroups = getStrings(result,"subGroup");
@@ -294,6 +321,7 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 				ColecticaItemSolr item = new ColecticaItemSolr(id, labelResult);
 				item.setVersion(versions.get(0).intValue());
 				item.setType(DDIItemType.searchByUUID(type.toUpperCase()).getName());
+				item.setDescription(getString(result,"description")); 
 				item.setModalities(modalities);
 				item.setSubGroups(subGroups);
 				item.setStudyUnits(studyUnits);
