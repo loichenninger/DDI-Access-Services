@@ -12,6 +12,7 @@ public class ColecticaItemSolr {
 	
 	private List<String> modalities;
 	private List<String> subGroups;
+	private List<String> subGroupLabels;
 	private List<String> dataCollections;
 	private List<String> studyUnits;
 
@@ -79,6 +80,14 @@ public class ColecticaItemSolr {
 
 	public void setSubGroups(List<String> subGroups) {
 		this.subGroups = subGroups;
+	}
+	
+	public List<String> getSubGroupLabels() {
+		return subGroupLabels;
+	}
+
+	public void setSubGroupLabels(List<String> subgroupLabels) {
+		this.subGroupLabels = subgroupLabels;
 	}
 
 	public List<String> getDataCollections() {

@@ -125,12 +125,12 @@ public class MetadataRepositoryImpl implements MetadataRepository {
 	}
 
 	@Override
-	public ColecticaSearchResponse searchItems(ColecticaSearchBody body) {
+	public ColecticaSearchResponse searchItems(ColecticaSearchBody body) throws Exception {
 		return metadataClient.searchItems(body);
 	}
 
 	@Override
-	public Relationship[] searchSets(ColecticaSearchSetBody setBody) {
+	public Relationship[] searchSets(ColecticaSearchSetBody setBody) throws Exception {
 		return metadataClient.searchSets(setBody);
 	}
 }

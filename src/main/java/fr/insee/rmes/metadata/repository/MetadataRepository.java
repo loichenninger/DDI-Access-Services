@@ -36,7 +36,7 @@ public interface MetadataRepository {
 
 	Relationship[] getRelationshipChildren(ObjectColecticaPost relationshipPost);
 	
-	ColecticaSearchResponse searchItems(ColecticaSearchBody body);
+	ColecticaSearchResponse searchItems(ColecticaSearchBody body) throws Exception;
 	
-	Relationship[] searchSets(ColecticaSearchSetBody setBody);
+	Relationship[] searchSets(ColecticaSearchSetBody setBody) throws Exception;
 }

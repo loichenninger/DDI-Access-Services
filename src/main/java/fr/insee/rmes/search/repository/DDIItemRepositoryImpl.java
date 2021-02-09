@@ -315,6 +315,7 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 			List<Long> versions = (List<Long>) result.getFieldValue("version");
 			List<String> modalities = getStrings(result,"modalities");
 			List<String> subGroups = getStrings(result,"subGroup");
+			List<String> subGroupLabels = getStrings(result,"subGroupLabel");
 			List<String> studyUnits = getStrings(result,"studyUnit");
 			List<String> dataCollections = getStrings(result,"dataCollection");
 			if (id != null && labelResult != null && type != null) {
@@ -324,6 +325,7 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 				item.setDescription(getString(result,"description")); 
 				item.setModalities(modalities);
 				item.setSubGroups(subGroups);
+				item.setSubGroupLabels(subGroupLabels);
 				item.setStudyUnits(studyUnits);
 				item.setDataCollections(dataCollections);
 				itemsResult.add(item);
