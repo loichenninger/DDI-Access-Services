@@ -75,14 +75,14 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 	}
 	
 	public QueryResponse querySolr(String queryString) {
-		SolrClient solrClient = new HttpSolrClient.Builder(String.format("https://%s/solr", solrHost)).build();
+		SolrClient solrClient = new HttpSolrClient.Builder(String.format("http://%s/solr", solrHost)).build();
 		final Map<String, String> queryParamMap = new HashMap<>();
 		queryParamMap.put("q", queryString);
 		MapSolrParams queryParams = new MapSolrParams(queryParamMap);
 
 		QueryResponse response = null;
 		try {
-			response = solrClient.query("testcore", queryParams);
+			response = solrClient.query("Test", queryParams);
 		} catch (SolrServerException | IOException e1) {
 			e1.printStackTrace();
 		}
@@ -183,7 +183,7 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 	public List<ResponseSearchItem> getItemsByCriteria(String subgroupId, String operationId, String dataCollectionId,
 			DDIQuery criteria) throws Exception {
 
-		SolrClient solrClient = new HttpSolrClient.Builder(String.format("https://%s/solr", solrHost)).build();
+		SolrClient solrClient = new HttpSolrClient.Builder(String.format("http://%s/solr", solrHost)).build();
 
 		SolrQuery query = new SolrQuery();
 		query.set(CommonParams.Q, "labels.fr-FR:" + criteria.getFilter());
@@ -277,7 +277,7 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 
 	@Override
 	public List<ColecticaItemSolr> getItemsByLabel(String label) {
-		SolrClient solrClient = new HttpSolrClient.Builder(String.format("https://%s/solr", solrHost)).build();
+		SolrClient solrClient = new HttpSolrClient.Builder(String.format("http://%s/solr", solrHost)).build();
 		SolrQuery query = new SolrQuery();
 		
 		//Request
@@ -296,7 +296,7 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 		
 		QueryResponse response = null;
 		try {
-			response = solrClient.query("testcore", query);
+			response = solrClient.query("Test", query);
 		} catch (SolrServerException | IOException e1) {
 			e1.printStackTrace();
 		}
