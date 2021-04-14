@@ -22,8 +22,12 @@ import org.apache.solr.common.params.HighlightParams;
 import org.apache.solr.common.params.MapSolrParams;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import fr.insee.rmes.config.DDIItemRepositoryImplCondition;
@@ -39,6 +43,11 @@ import fr.insee.rmes.search.model.ResponseSearchItem;
 @Conditional(value = DDIItemRepositoryImplCondition.class)
 public class DDIItemRepositoryImpl implements DDIItemRepository {
 
+	/*Temporary in order to retrieve sub-groups, study units and data collections 
+	from database(information not yet available in Solr sever)*/
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+	
 	@Value("${fr.insee.rmes.solr.host}")
 	private String solrHost;
 
@@ -91,40 +100,71 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 
 	@Override
 	public List<DDIItem> getSubGroups() throws Exception {
-		String queryString = String.format(TYPE_SEARCH, DDIItemType.SUB_GROUP.getUUID().toLowerCase());
-
-		QueryResponse response = querySolr(queryString);
-		SolrDocumentList results = response.getResults();
-
-		return mapResponse(results);
+		//Remove this when information available in Solr
+		try {
+			List<DDIItem> ddiItems = jdbcTemplate.query("SELECT * FROM ddi_item WHERE type='sub-group'",
+					new BeanPropertyRowMapper<DDIItem>(DDIItem.class));
+			return ddiItems;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+//		String queryString = String.format(TYPE_SEARCH, DDIItemType.SUB_GROUP.getUUID().toLowerCase());
+//
+//		QueryResponse response = querySolr(queryString);
+//		SolrDocumentList results = response.getResults();
+//
+//		return mapResponse(results);
 	}
 
 	@Override
 	public List<DDIItem> getStudyUnits(String subGroupId) throws Exception {
-		String queryString = "";
-		if (subGroupId == null) {
-			queryString = String.format(TYPE_SEARCH, DDIItemType.STUDY_UNIT.getUUID().toLowerCase());
-		} else {
-			queryString = String.format("type:%s AND subGroup.id:%s", DDIItemType.STUDY_UNIT.getUUID().toLowerCase(),
-					subGroupId);
+		//Remove this when information available in Solr
+		List<DDIItem> ddiItems;
+		try {
+			String query = "SELECT * FROM ddi_item WHERE type='study-unit' ";
+			if (subGroupId != null) {
+				query = query.concat("and subgroupid=?");
+				ddiItems = jdbcTemplate.query(query, new BeanPropertyRowMapper<DDIItem>(DDIItem.class), subGroupId);
+			} else {
+				ddiItems = jdbcTemplate.query(query, new BeanPropertyRowMapper<DDIItem>(DDIItem.class));
+			}
+			return ddiItems;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
 		}
-
-		QueryResponse response = querySolr(queryString);
-		SolrDocumentList results = response.getResults();
-
-		return mapResponse(results);
+//		String queryString = "";
+//		if (subGroupId == null) {
+//			queryString = String.format(TYPE_SEARCH, DDIItemType.STUDY_UNIT.getUUID().toLowerCase());
+//		} else {
+//			queryString = String.format("type:%s AND subGroup.id:%s", DDIItemType.STUDY_UNIT.getUUID().toLowerCase(),
+//					subGroupId);
+//		}
+//
+//		QueryResponse response = querySolr(queryString);
+//		SolrDocumentList results = response.getResults();
+//
+//		return mapResponse(results);
 	}
 
 	@Override
 	public List<DDIItem> getDataCollections(String studyUnitId) throws Exception {
-		String queryString = String.format("type:%s AND studyUnit.id:%s",
-				DDIItemType.DATA_COLLECTION.getUUID().toLowerCase(),
-				studyUnitId);
-
-		QueryResponse response = querySolr(queryString);
-		SolrDocumentList results = response.getResults();
-
-		return mapResponse(results);
+		//Remove this when information available in Solr
+		try {
+			List<DDIItem> ddiItems = jdbcTemplate.query(
+					"SELECT * FROM ddi_item WHERE type='data-collection' and studyunitid=?",
+					new BeanPropertyRowMapper<DDIItem>(DDIItem.class), studyUnitId);
+			return ddiItems;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+//		String queryString = String.format("type:%s AND studyUnit.id:%s",
+//				DDIItemType.DATA_COLLECTION.getUUID().toLowerCase(),
+//				studyUnitId);
+//
+//		QueryResponse response = querySolr(queryString);
+//		SolrDocumentList results = response.getResults();
+//
+//		return mapResponse(results);
 	}
 
 	@Override
