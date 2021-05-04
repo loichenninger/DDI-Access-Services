@@ -206,17 +206,26 @@ public class DDIItemRepositoryImpl implements DDIItemRepository {
 
 	@Override
 	public DataCollectionContext getDataCollectionContext(String dataCollectionId) throws Exception {
-		String queryString = String.format("id:%s", dataCollectionId);
-
-		QueryResponse response = querySolr(queryString);
-		SolrDocumentList results = response.getResults();
-		DataCollectionContext context = new DataCollectionContext();
+		//Remove this when information available in Solr
+		List<DDIItem> ddiItems = jdbcTemplate.query("SELECT * FROM ddi_item WHERE type='data-collection' and id=?",
+				new BeanPropertyRowMapper<DDIItem>(DDIItem.class), dataCollectionId);
+		DataCollectionContext dcContext = new DataCollectionContext();
+		dcContext.setDataCollectionId(dataCollectionId);
+		dcContext.setOperationId(ddiItems.get(0).getStudyUnitId());
+		dcContext.setSerieId(ddiItems.get(0).getSubGroupId());
+		return dcContext;
 		
-		context.setDataCollectionId(getString(results.get(0),"id"));
-		context.setSerieId(getString(results.get(0), "subGroup.id"));
-		context.setOperationId(getString(results.get(0), "studyUnit.id"));
-		
-		return context;
+//		String queryString = String.format("id:%s", dataCollectionId);
+//
+//		QueryResponse response = querySolr(queryString);
+//		SolrDocumentList results = response.getResults();
+//		DataCollectionContext context = new DataCollectionContext();
+//		
+//		context.setDataCollectionId(getString(results.get(0),"id"));
+//		context.setSerieId(getString(results.get(0), "subGroup.id"));
+//		context.setOperationId(getString(results.get(0), "studyUnit.id"));
+//		
+//		return context;
 	}
 
 	@Override
