@@ -390,18 +390,21 @@ public class MetadataServiceItemImpl implements MetadataServiceItem {
 		ColecticaSearchResponse response = metadataRepository.searchItems(body);
 		List<ColecticaItemRef> ids = new ArrayList<>();
 		response.getResults().stream().forEach((result) -> {
-			ColecticaItemRef item = new ColecticaItemRef( result.getIdentifier(), result.getVersion(), result.getAgencyId());
+			ColecticaItemRef item = new ColecticaItemRef(result.getIdentifier(), result.getVersion(),
+					result.getAgencyId());
 			ids.add(item);
 		});
 		return metadataRepository.getItems(new ColecticaItemRefList(ids));
 	}
-	
+
 	@Override
-	public List<RelationshipOut> getTopLevelRefs (String id) throws Exception {
+	public List<RelationshipOut> getTopLevelRefs(String id) throws Exception {
 		ColecticaItem item = metadataRepository.findById(id);
-		ColecticaItemRef itemRef = new ColecticaItemRef(item.getIdentifier(), Integer.parseInt(item.getVersion()), item.getAgencyId());
+		ColecticaItemRef itemRef = new ColecticaItemRef(item.getIdentifier(), Integer.parseInt(item.getVersion()),
+				item.getAgencyId());
 		List<String> typeList = new ArrayList<>();
-		//Searching parents which types are Group, SubGroup, DataCollection and StudyUnit
+		// Searching parents which types are Group, SubGroup, DataCollection and
+		// StudyUnit
 		typeList.add(DDIItemType.GROUP.getUUID());
 		typeList.add(DDIItemType.SUB_GROUP.getUUID());
 		typeList.add(DDIItemType.STUDY_UNIT.getUUID());
@@ -409,29 +412,31 @@ public class MetadataServiceItemImpl implements MetadataServiceItem {
 		ColecticaFacet facet = new ColecticaFacet(typeList, true);
 		ColecticaSearchSetBody body = new ColecticaSearchSetBody(itemRef, facet);
 		Relationship[] results = metadataRepository.searchSets(body);
-		List<RelationshipOut> resultsFinal = new ArrayList<>(); 
-		//Keeping only the last version of an item
-		for (int i=0; i<results.length; i++) {
+		List<RelationshipOut> resultsFinal = new ArrayList<>();
+		// Keeping only the last version of an item
+		for (int i = 0; i < results.length; i++) {
 			boolean lastVersion = true;
-			for (int j=0; j<results.length; j++) {
-				if (results[i].getIdentifierTriple().getIdentifier().equals(results[i].getIdentifierTriple().getIdentifier())
-					&& results[i].getIdentifierTriple().getVersion()<results[j].getIdentifierTriple().getVersion()) {
+			for (int j = 0; j < results.length; j++) {
+				if (results[i].getIdentifierTriple().getIdentifier()
+						.equals(results[j].getIdentifierTriple().getIdentifier())
+						&& results[i].getIdentifierTriple().getVersion() < results[j].getIdentifierTriple()
+								.getVersion()) {
 					lastVersion = false;
 				}
-			};
+			}
+			;
 			if (lastVersion) {
 				resultsFinal.add(mappingRelationship(results[i]));
 			}
 		}
 		return resultsFinal;
 	}
-	
-	public RelationshipOut mappingRelationship (Relationship rel) {
-		ColecticaItemRef refOut = new ColecticaItemRef(rel.getIdentifierTriple().getIdentifier(), 
+
+	public RelationshipOut mappingRelationship(Relationship rel) {
+		ColecticaItemRef refOut = new ColecticaItemRef(rel.getIdentifierTriple().getIdentifier(),
 				rel.getIdentifierTriple().getVersion(), rel.getIdentifierTriple().getAgencyId());
 		return new RelationshipOut(refOut, rel.getTypeItem());
-		
+
 	}
-	
 
 }
